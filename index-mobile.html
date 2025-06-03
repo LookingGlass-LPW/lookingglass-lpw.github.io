@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+
+  <title>LookingGlass: Generative Anamorphoses via Laplacian Pyramid Warping</title>
+  <link rel="icon" type="image/x-icon" href="docs/assets/images/favicon.ico">
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="static/css/index-mobile.css">
+
+  <script>
+  function shouldUseMobile() {
+    return window.innerWidth <= 1024;
+  }
+
+  function checkAndRedirect() {
+    const isMobile = shouldUseMobile();
+    const currentPath = window.location.pathname;
+
+    if (isMobile && !currentPath.includes('index-mobile.html')) {
+      window.location.replace('index-mobile.html');
+    } else if (!isMobile && currentPath.includes('index-mobile.html')) {
+      window.location.replace('index.html');
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', checkAndRedirect);
+  window.addEventListener('resize', () => {
+    // Add a short delay to avoid too many redirects
+    clearTimeout(window._resizeTimeout);
+    window._resizeTimeout = setTimeout(checkAndRedirect, 300);
+  });
+</script>
+
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://documentcloud.adobe.com/view-sdk/main.js"></script>
+  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <script src="static/js/bulma-carousel.min.js"></script>
+  <script src="static/js/bulma-slider.min.js"></script>
+  <script src="static/js/index.js"></script>
+  <script src="static/js/buttons.js"></script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+
+<body>
+
+
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-2 publication-title">LookingGlass: Generative Anamorphoses via Laplacian Pyramid Warping</h1>
+            <div class="is-size-5 publication-authors">
+              <!-- Paper authors -->
+              <span class="author-block">
+                <a href="https://pascalchang87.github.io" target="_blank">Pascal Chang<sup>1,2</sup></a>,</span>
+                <span class="author-block">
+                  <a href="https://sergio-sancho.github.io" target="_blank">Sergio Sancho<sup>1,2</sup></a>,</span>
+              <span class="author-block" style="color: #4286f4"> 
+                <a href="https://studios.disneyresearch.com/people/jingwei-tang/" target="_blank">Jingwei Tang<sup>2</sup></a>,</span>
+              <span class="author-block" style="color: #4286f4">
+                <a href="https://cgl.ethz.ch/people/grossm/" target="_blank">Markus Gross<sup>1,2</sup></a>,</span>
+              <span class="author-block" style="color: #4286f4">
+                <a href="https://studios.disneyresearch.com/people/vinicius-da-costa-de-azevedo/" target="_blank">Vinicius C. Azevedo<sup>2</sup></a></span>
+            </div>
+
+            <div class="is-size-5 publication-authors">
+              <span class="eql-cntrb"><sup>1</sup>ETH Zürich &emsp;&emsp;&emsp; <sup>2</sup>DisneyResearch|Studios</span>
+              <br>
+              <span class="author-block">CVPR 2025 (Oral)</span>
+            </div>
+
+            <div class="column has-text-centered">
+              <div class="publication-links">
+
+               <!-- ArXiv abstract Link -->
+               <span class="link-block">
+                <a href="https://arxiv.org/abs/2504.08902" target="_blank"
+                class="external-link button is-normal is-rounded is-dark">
+                <span class="icon">
+                  <i class="ai ai-arxiv"></i>
+                </span>
+                <span>arXiv</span>
+              </a>
+            </span>
+
+              <!-- ArXiv PDF link -->
+              <span class="link-block">
+                <a href="https://arxiv.org/pdf/2504.08902" target="_blank"
+                class="external-link button is-normal is-rounded is-dark">
+                <span class="icon">
+                  <i class="fas fa-file-pdf"></i>
+                </span>
+                <span>Paper</span>
+                </a>
+              </span>
+
+          <!-- CVPR 2025 Website Link -->
+          <span class="link-block">
+            <a href="https://cvpr.thecvf.com/virtual/2025/poster/32534" target="_blank"
+            class="external-link button is-normal is-rounded is-dark">
+            <span class="icon">
+              <i class="fas fa-globe"></i>
+            </span>
+            <span>Conference</span>
+          </a>
+        </span>
+            </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Teaser video-->
+  <section class="hero teaser" id="teaser">
+    <div class="container is-max-desktop">
+      <div class="hero-body">
+        <img src="./docs/assets/images/teaser.png" alt="Teaser" width="100%" />
+        <h2 class="subtitle has-text-centered">
+          We repurpose latent diffusion models to generate high-quality, complex, multi-view anamorphoses. 
+          Our generated images reveal hidden interpretations when observed through mirrors or lenses.
+        </h2>
+      </div>
+    </div>
+  </section>
+  <!-- End teaser video -->
+
+  <!-- Paper abstract -->
+  <section class="section hero is-light" id="abstract">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Abstract</h2>
+          <div class="content has-text-justified">
+            <p>
+              Anamorphosis refers to a category of images that are intentionally distorted, making them unrecognizable when viewed directly. 
+              Their true form only reveals itself when seen from a specific viewpoint, which can be through some catadioptric device like 
+              a mirror or a lens. While the construction of these mathematical devices can be traced back to as early as the 17th century, 
+              they are only interpretable when viewed from a specific vantage point and tend to lose meaning when seen normally. 
+              In this paper, we revisit these famous optical illusions with a generative twist. With the help of latent rectified flow models, 
+              we propose a method to create anamorphic images that still retain a valid interpretation when viewed directly. 
+              To this end, we introduce <i>Laplacian Pyramid Warping</i>, a frequency-aware image warping technique key to 
+              generating high-quality visuals. Our work extends Visual Anagrams (Geng et al. 2024) to latent space models and 
+              to a wider range of spatial transforms, enabling the creation of novel generative perceptual illusions.
+            </p>
+          </div>
+          <br>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- End paper abstract -->
+
+   <!-- Method Overview -->
+   <section class="section hero is-small" id="method">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column ">
+        <h2 class="title is-3">Pipeline</h2>
+
+        <p>
+          At each denoising step, the estimated final image is computed from the diffusion model's noise estimate and
+decoded into image space. Image warping and view aggregation is performed in image space using Laplacian pyramids, before encoding
+back into latent space for the diffusion step.
+        </p>
+        <br>
+
+        <div class="hero-list">
+          <div id="tree" width="50%">
+            <img src="./docs/assets/images/pipeline.png" alt="The pipeline" width="100%" />
+          </div>
+        </div> 
+
+        <br>
+        
+        <h2 class="title is-4">Laplacian Pyramid Warping (LPW)</h2>
+        <p>
+         At the core of the pipeline is Laplacian pyramid warping, a novel frequency-aware image warping method that preserves high-frequency details during the view transformation process, preserving image quality during synchronization of mulitple diffusion paths.
+        </p>
+
+        <div class="hero-list">
+          <div id="tree">
+            <video poster="./docs/assets/images/laplacian_warping_poster.png" controls loop width="100%">
+              <source src="./docs/assets/videos/laplacian_warping.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div> 
+      </div>
+    </div>
+      </div>
+    </div>
+  </section>
+  <!-- End Method Overview -->
+
+  <hr>
+
+  <section class="hero is-small" id="cylinder">
+    <div class="hero-body">
+      <div class="container">
+        <h2 class="title is-3">Cylindrical mirror</h2>
+
+        <div class="hero-list">
+          <div id="tree" width="100%">
+            <img src="./docs/assets/images/view_cylinder.png" alt="Cylindrical mirror view" width="80%" />
+          </div>
+        </div> 
+
+        <div class="hero-list">
+          <div id="tree">
+            <video poster="" controls loop>
+              <source src="./docs/assets/videos/cylinder/0000.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div id="tree">
+            <video poster="" controls loop>
+              <source src="./docs/assets/videos/cylinder/0001.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div id="tree">
+            <video poster="" controls loop>
+              <source src="./docs/assets/videos/cylinder/0002.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+        <br><br>
+
+        <div class="hero-list">
+          <div id="tree">
+            <video poster="" controls loop>
+              <source src="./docs/assets/videos/cylinder/0003.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div id="tree">
+            <video poster="" controls loop>
+              <source src="./docs/assets/videos/cylinder/0004.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div id="tree">
+            <video poster="" controls loop>
+              <source src="./docs/assets/videos/cylinder/0005.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <section class="hero is-small" id="cone">
+    <div class="hero-body">
+      <div class="container">
+        <h2 class="title is-3">Conic mirror</h2>
+
+        <div class="hero-list">
+          <div id="tree" width="100%">
+            <img src="./docs/assets/images/view_cone.png" alt="Conic mirror view" width="80%" />
+          </div>
+        </div> 
+
+        <div class="hero-list">
+          <div id="tree">
+            <video poster="" controls loop>
+              <source src="./docs/assets/videos/cone/0000.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div id="tree">
+            <video poster="" controls loop>
+              <source src="./docs/assets/videos/cone/0001.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div id="tree">
+            <video poster="" controls loop>
+              <source src="./docs/assets/videos/cone/0002.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+        <br><br>
+
+        <div class="hero-list">
+          <div id="tree">
+            <video poster="" controls loop>
+              <source src="./docs/assets/videos/cone/0003.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div id="tree">
+            <video poster="" controls loop>
+              <source src="./docs/assets/videos/cone/0004.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div id="tree">
+            <video poster="" controls loop>
+              <source src="./docs/assets/videos/cone/0005.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <section class="hero is-small" id="lens">
+    <div class="hero-body">
+      <div class="container">
+        <h2 class="title is-3">Nicéron's lens</h2>
+
+        <div class="hero-list">
+          <div id="tree" width="100%">
+            <img src="./docs/assets/images/view_lens.png" alt="Lens view" width="80%" />
+          </div>
+        </div> 
+
+        <div class="hero-list">
+          <div id="tree">
+            <video poster="" controls loop>
+              <source src="./docs/assets/videos/lens/0000.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div id="tree">
+            <video poster="" controls loop>
+              <source src="./docs/assets/videos/lens/0001.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div id="tree">
+            <video poster="" controls loop>
+              <source src="./docs/assets/videos/lens/0002.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+        <br><br>
+
+        <div class="hero-list">
+          <div id="tree">
+            <video poster="" controls loop>
+              <source src="./docs/assets/videos/lens/0003.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div id="tree">
+            <video poster="" controls loop>
+              <source src="./docs/assets/videos/lens/0004.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div id="tree">
+            <video poster="" controls loop>
+              <source src="./docs/assets/videos/lens/0005.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <section class="hero is-small" id="lens">
+    <div class="hero-body">
+      <div class="container">
+        <h2 class="title is-3">Three-view Nicéron's lens</h2>
+
+         <div class="content has-text-justified">
+            <p>A watercolor painting of a botanical garden / a bunny / a garden gnome <br><br></p>
+          </div>
+
+        <div class="hero-list">
+          <div id="tree">
+            <video poster="" controls loop>
+              <source src="./docs/assets/videos/lens_twoview/0000.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div id="tree">
+            <video poster="" controls loop>
+              <source src="./docs/assets/videos/lens_twoview/0001.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div id="tree">
+            <video poster="" controls loop>
+              <source src="./docs/assets/videos/lens_twoview/0002.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+    <!--BibTex citation -->
+    <section class="section" id="BibTeX">
+      <div class="container is-max-desktop content">
+        <h2 class="title">BibTeX</h2>
+        <pre><code>@misc{chang2025lookingglass,
+          Author = {Pascal Chang and Sergio Sancho and Jingwei Tang and Markus Gross and Vinicius C. Azevedo},
+          Title = {LookingGlass: Generative Anamorphoses via Laplacian Pyramid Warping},
+          Year = {2025},
+          Eprint = {arXiv:2504.08902},
+  }</code></pre>
+      </div>
+  </section>
+  <!--End BibTex citation -->
+
+</body>
+
+</html>
